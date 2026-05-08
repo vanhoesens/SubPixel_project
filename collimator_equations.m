@@ -2,7 +2,6 @@ function collimator = collimator_equations(type,diameter,body_distance,septal_le
 % Possible geometries:
 %   - Parallel Hole
 %   - Pinhole
-%   - possible future expansion into convergent and divergent
 %
 % Parallel Hole Equations
 %   Rc = d(le+b)/le
@@ -27,6 +26,7 @@ function collimator = collimator_equations(type,diameter,body_distance,septal_le
 %       alpha = angle of the septa at the pinhole
 %
 
+%% Parse the inputs and name them accordingly
 p = inputParser;
 addRequired(p,'type');
 addRequired(p,'diameter');
@@ -46,23 +46,24 @@ mu = p.Results.mu;
 K = p.Results.K_value;
 thickness = p.Results.septal_thickness;
 septal_angle = p.Results.septal_angle;
-% off_angle = p.Results.off_angle;
+
+%% Calculate the collimator resolution and efficiency
 
 if strcmp(type,'parallel')
+    % Implement the collimator equations for parallel hole collimation
     eff_length = septal_len-(2/mu);
     coll_res = zeros(1,length(b_dist));
 
     for i = 1:length(b_dist)
         dist = b_dist(i);
-        coll_res(i) = diameter*(eff_length+dist)/eff_length;
+        coll_res(i) = diameter*(eff_length+dist)/eff_length; % collimator resolution
     end
 
-    coll_eff = K^2*(diameter/eff_length)^2*(diameter^2/(diameter+thickness)^2);
+    coll_eff = K^2*(diameter/eff_length)^2*(diameter^2/(diameter+thickness)^2); % collimator efficiency
 
 
 elseif strcmp(type,'pinhole')
-    % Incomplete for now
-        % NEXT Step: check that the directions/axes for res and eff are correct
+    % Still working to make efficiency correct with the off angle stuff
 
     off_angle = zeros(length(b_dist),length(b_dist),length(b_dist));
     for x = 1:length(b_dist)
@@ -78,15 +79,16 @@ elseif strcmp(type,'pinhole')
     end
 
     tan_part = tand(septal_angle/2);
-    eff_diam = sqrt(diameter*(diameter + (2/mu)*tan_part));
+    eff_diam = sqrt(diameter*(diameter + (2/mu)*tan_part)); % effective diameter
 
-    coll_res = zeros(length(b_dist));
+    coll_res = zeros(length(b_dist)); % initialize resolution array
 
     for i = 1:length(b_dist)
         dist = b_dist(i);
-        coll_res(i) = eff_diam*(septal_length+dist)/septal_length;
+        coll_res(i) = eff_diam*(septal_length+dist)/septal_length; % collimator resolution
     end
 
+    % Collimator Efficiency currently in progress
     % off_angle_unwind = off_angle(:);
     % coll_eff = zeros(size(off_angle_unwind));
     % b_dist_long = repmat(b_dist,length(b_dist),1,length(b_dist));
@@ -102,6 +104,7 @@ elseif strcmp(type,'pinhole')
 
 end
 
+%% Assign the results to the output structure
 collimator.resolution = coll_res;
 collimator.efficiency = coll_eff;
 collimator.type = type;
