@@ -2,7 +2,7 @@
 phantom_type = 'shepp-logan';
 phantom_size = 64;
 iteration_num = 5; % Number of MLEM iterations to process
-sample_points = 120; % Number of angles to use in (back)projection
+sample_points = 60; % Number of angles to use in (back)projection
 collimator_type = 'parallel';
 
 % Initialize collimator parameters
