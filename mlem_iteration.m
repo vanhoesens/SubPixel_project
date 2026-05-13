@@ -16,7 +16,7 @@ addRequired(p,'theta');
 addRequired(p,'body_size');
 addRequired(p,'collimator');
 addRequired(p,'num_iter');
-addOptional(p,'plot_robust','false');
+addOptional(p,'plot_robust',false);
 parse(p,og_image,theta,body_size,collimator,num_iter,varargin{:});
 
 % Run the initial projection of our phantom
@@ -68,10 +68,12 @@ figure()
 montage(uint16(newImage),DisplayRange=[])
 title('Recon Image Final')
 
+drawnow
+
 reconstruction = newImage;
 
 
-if plotting_robust
+if p.Results.plot_robust
     % Original Image
     figure()
     montage(uint16(og_image),DisplayRange=[])

@@ -1,15 +1,14 @@
 function proj = projection(image,theta,body_size,collimator_res)
 
 % General function (3D):
-% Read in the image
-% Add up the columns in the x-y plane
-% 2D blur the added values with a gaussian (use Collimation Eqns)
-% Store the added and blurred image as a slice of the sinogram
-% Rotate the image about the z axis by the angle increment in theta
-% Repeat these steps for all the angles
+    % Read in the image
+    % Add up the columns in the x-y plane
+    % 2D blur the added values with a gaussian (use Collimation Eqns)
+    % Store the added and blurred image as a slice of the sinogram
+    % Rotate the image about the z axis by the angle increment in theta
+    % Repeat these steps for all the angles
 % Updates Needed:
-% different values for x and y directions
-% pinhole collimation case
+    % different values for x and y directions
 
 % Pad the image so that nothing in the corner is cut off when rotating
 max_cutoff = ceil(body_size(1)*0.42); % max number of pixels that would be cut off [diameter = body length, 0.42 = sqrt(2)-1]
