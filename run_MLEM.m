@@ -1,20 +1,20 @@
 %% Basic Input Parameters:
-phantom_type = 'shepp-logan';
+phantom_type = 'shepplogan';
 phantom_size = 64;
-iteration_num = 5; % Number of MLEM iterations to process
-sample_points = 120; % Number of angles to use in (back)projection
+iteration_num = 10; % Number of MLEM iterations to process
+sample_points = 60; % Number of angles to use in (back)projection
 collimator_type = 'parallel';
 
 % Initialize collimator parameters
-hole_diameter = 0.25; % BOTH Collimator hole diameter in cm
-septal_length = 5; % BOTH Collimator septa length in cm
-septal_thickness = 2; % PARALLEL septa thickness in cm
-mu = 20.8; % BOTH Attenuation coefficient of the collimator material (20.8cm^-1 for lead at 150 keV)
-K = 0.28; % PARALLEL Constant based on hole shape & geometry (0.24 for round holes in hex array)
-septal_angle = 60; % PINHOLE Angle in degrees of the pinhole
+hole_diameter = 0.5; % BOTH: Collimator hole diameter in cm
+septal_length = 5; % BOTH: Collimator septa length in cm
+septal_thickness = 2; % PARALLEL: septa thickness in cm
+mu = 20.8; % BOTH: Attenuation coefficient of the collimator material (20.8cm^-1 for lead at 150 keV)
+K = 0.28; % PARALLEL: Constant based on hole shape & geometry (0.24 for round holes in hex array)
+septal_angle = 30; % PINHOLE: Angle in degrees of the pinhole
 
 % Initialize the detector parameters
-detector_elements = 60; % readjust when uncoupled from the body size
+detector_elements = 32; % readjust when uncoupled from the body size
 pixel_size = 0.22; % Absolute length of detector pixel in cm
 body_size = [phantom_size phantom_size phantom_size];
 body_length = phantom_size;
@@ -25,12 +25,12 @@ theta = 0:steps:360;
 theta(end) = []; % this keeps to the number of sample points (no repeat at 360=0)
 
 %% Read in the phantom/geometry we are going to image
-if strcmp(phantom_type,'shepp-logan')
+if strcmp(phantom_type,'shepplogan')
     og_image = phantom3d('Modified Shepp-Logan',phantom_size); 
     og_image = rescale(og_image,0,255);
     
 elseif strcmp(phantom_type,'kidney-xcat')
-    location = 'C:\Users\svanhoesen\OneDrive - UMass Chan Medical School\Pt_folders\pt333\prepared_7\';
+    location = 'C:\Users\svanhoesen\OneDrive - UMass Chan Medical School\Pt_folders\pt532\prepared_7\';
     right = Read_XCAT(append(location,'rkid_act_av.bin'),256);
     left = Read_XCAT(append(location,'lkid_act_av.bin'),256);
     og_image = right + left;
@@ -40,7 +40,7 @@ elseif strcmp(phantom_type,'simple')
     image_space = ones(body_size);
     [sag,cor,tra] = findND(image_space);
     center = [30 30 30];
-    radius = 3;
+    radius = 6;
     og_image = insert_3d_phantom(sag,cor,tra,center,radius);
     og_image = reshape(og_image,body_length,body_length,body_length);
     og_image = rescale(og_image,0,255);
@@ -63,6 +63,15 @@ end
 recon_final = mlem_iteration(og_image,theta,body_size,collimator,iteration_num);
 
 
+if strcmp(phantom_type,'kidney-xcat')
+    recon_final = permute(recon_final,[1 3 2]);
+    recon_final = imrotate3(recon_final,-90,[0 0 1],'crop');
+    
+    figure()
+    montage(uint16(recon_final),DisplayRange=[])
+    title('Recon Image Final')
+
+end
 
 
 

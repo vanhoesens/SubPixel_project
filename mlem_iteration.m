@@ -1,4 +1,4 @@
-function reconstruction = mlem_iteration(og_image,theta,body_size,collimator,num_iter)
+function reconstruction = mlem_iteration(og_image,theta,body_size,collimator,num_iter,varargin)
 
 % MLEM Equation:
 % new = old * update factor
@@ -10,39 +10,24 @@ function reconstruction = mlem_iteration(og_image,theta,body_size,collimator,num
 % the denominator sum is the back projection
 % probability(b,d) is the probability that an interaction in detector element d was from an event in body element b
 
+p = inputParser;
+addRequired(p,'og_image');
+addRequired(p,'theta');
+addRequired(p,'body_size');
+addRequired(p,'collimator');
+addRequired(p,'num_iter');
+addOptional(p,'plot_robust',false);
+parse(p,og_image,theta,body_size,collimator,num_iter,varargin{:});
+
 % Run the initial projection of our phantom
 sinogram = projection(og_image,theta,body_size,collimator.resolution);
-
-% View the original image and the sinogram to make sure everything is working
-figure()
-montage(uint16(og_image),DisplayRange=[])
-title('Original Image')
-% 
-% figure()
-% montage(uint16(permute(sinogram,[1 3 2])),DisplayRange=[])
-% title('Original Sinogram')
-% 
-% figure()
-% montage(uint16(sinogram),DisplayRange=[])
-% title('Original Sinogram')
 
 % Perform direct backprojection for comparison to MLEM result
 direct_backproj = backprojection(sinogram,theta,body_size);
 
-figure()
-montage(uint16(direct_backproj),DisplayRange=[])
-title('Direct Backprojection')
-
-% return
-
 % % Initialize the sinogram of ones to create our sensitivity matrix
 % sino_ones = ones(size(sinogram));
 % sens_img = backprojection(sino_ones,theta,body_size);
-
-% % View the sensitivity image for checking
-% figure()
-% montage(uint16(sens_img),DisplayRange=[])
-% title('Sensitivity Sinogram')
 
 % Initialize old and new images for data storage
 newImage = ones(body_size);
@@ -83,15 +68,37 @@ figure()
 montage(uint16(newImage),DisplayRange=[])
 title('Recon Image Final')
 
-% figure()
-% vol3d('CData',newImage);
-% title(append('Iteration ',num2str(ind)))
-% xlabel('x body axis')
-% ylabel('y body axis')
-% zlabel('z body axis')
-
+drawnow
 
 reconstruction = newImage;
+
+
+if p.Results.plot_robust
+    % Original Image
+    figure()
+    montage(uint16(og_image),DisplayRange=[])
+    title('Original Image')
+    
+    % Original Sinogram for the input Image
+    figure()
+    montage(uint16(permute(sinogram,[1 3 2])),DisplayRange=[])
+    title('Original Sinogram')
+
+    figure()
+    montage(uint16(sinogram),DisplayRange=[])
+    title('Original Sinogram')
+
+    % Direct Backprojection for comparison
+    figure()
+    montage(uint16(direct_backproj),DisplayRange=[])
+    title('Direct Backprojection')
+
+    % % Sensitivity image (if used)
+    % figure()
+    % montage(uint16(sens_img),DisplayRange=[])
+    % title('Sensitivity Sinogram')
+
+end
 
 end
 
