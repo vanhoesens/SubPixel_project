@@ -60,13 +60,14 @@ for ind = 1:num_iter
 end
 
 % View the final iteration
-% figure()
-% montage(uint16(permute(proj,[1 3 2])),DisplayRange=[])
-% title('Projection Final')
-
 figure()
 montage(uint16(newImage),DisplayRange=[])
-title('Recon Image Final')
+title(['Recon Image Final: ',num2str(length(theta)),' Angles'])
+
+% Original Image
+figure()
+montage(uint16(og_image),DisplayRange=[])
+title('Original Image')
 
 drawnow
 
