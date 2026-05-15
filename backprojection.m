@@ -20,15 +20,16 @@ diff_angles = angles(1) - angles(2);
 for k = 1:length(angles)
     outputImage = imrotate3(outputImage,diff_angles,[0 0 1],"linear","crop"); 
 
-        angled_projection = zeros(rotate_size);
-        for ind = 1:rotate_size(3)
-            pad_proj = padarray(proj(:,:,k),[half_cutoff half_cutoff],0,'both');
-            angled_projection(ind,:,:) = pad_proj;
+        angled_projection = zeros(body_size);
+        for ind = 1:body_size(3)
+            angled_projection(ind,:,:) = proj(:,:,k);
 
         end
 
+    angled_padded = padarray(angled_projection,[half_cutoff half_cutoff half_cutoff],0,'both');
+
     % back_projections_hold(:,:,:,k) = angled_projection;
-    outputImage = outputImage + angled_projection;
+    outputImage = outputImage + angled_padded;
 
     % figure(100)
     % montage(angled_projection,'BorderSize',1,'DisplayRange',[min(min(min(angled_projection))) max(max(max(angled_projection)))+1],'Parent',ax1)
