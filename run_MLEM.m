@@ -1,7 +1,7 @@
 %% Basic Input Parameters:
 phantom_type = 'simindproj';
 phantom_size = 128;
-iteration_num = 10; % Number of MLEM iterations to process
+iteration_num = 5; % Number of MLEM iterations to process
 sample_points = 120; % Number of angles to use in (back)projection
 collimator_type = 'parallel';
 
@@ -83,33 +83,29 @@ elseif strcmp(phantom_type,'simple')
 end
 
 %% Call the MLEM_iteration script
-recon_final = mlem_iteration(projections,theta,body_size,collimator,iteration_num,'plot_robust',true);
+recon_final = mlem_iteration(projections,theta,body_size,collimator,iteration_num,'plot_robust',false);
 
 
 
 
 
-% % % Attempt the FFT method mentioned in Sorenson pg 398 (only for known og image)
-% % fft3d_og = fftn(og_image);
-% % fft3d_recon = fftn(recon_final);
-% % fft3d_ratio = fft3d_og./fft3d_recon;
-% % 
-% % correction = ifftn(fft3d_ratio);
-% % image_test = convn(fft3d_recon,correction,'same');
-% % 
-% % figure()
-% % montage(uint16(og_image),DisplayRange=[])
-% % title('OG Image')
-% % 
-% % figure()
-% % montage(uint16(recon_final),DisplayRange=[])
-% % title('Recon Image')
-% % 
-% % figure()
-% % montage(uint16(image_test),DisplayRange=[])
-% % title('Convolution Filtered Image')
-% % 
-% % figure()
-% % montage(uint16(correction),DisplayRange=[])
-% % title('Convolution Filter')
+% % Attempt the FFT method mentioned in Sorenson pg 398 - is this basically covered with the distance dependent blurring in the collimator equations?
+% fft3d_recon = fftn(recon_final);
+% fft_dist = fftn(dist_array);
+% fft_image = fft3d_recon./fft_dist;
+% 
+% image_test = real(ifftn(fft_image));
+% 
+% figure()
+% montage(uint16(og_image),DisplayRange=[])
+% title('OG Image')
+% 
+% figure()
+% montage(uint16(recon_final),DisplayRange=[])
+% title('Recon Image')
+% 
+% figure()
+% montage(uint16(image_test),DisplayRange=[])
+% title('Convolution Filtered Image')
+
 

@@ -46,10 +46,10 @@ for ind = 1:num_iter
     newImage = rescale(newImage,0,255);
 
 
-    % View the current iteration of the estimate image
-    figure()
-    montage(uint16(newImage),DisplayRange=[])
-    title(append('Iteration ',num2str(ind)))
+    % % View the current iteration of the estimate image
+    % figure()
+    % montage(uint16(newImage),DisplayRange=[])
+    % title(append('Iteration ',num2str(ind)))
 
 end
 
