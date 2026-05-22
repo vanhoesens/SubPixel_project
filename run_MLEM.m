@@ -59,7 +59,7 @@ elseif strcmp(phantom_type,'kidneyxcat')
     projections = projection(og_image,theta,body_size,collimator.resolution);
 
 elseif strcmp(phantom_type,'simindproj')
-    % Read in projections from simind and process them without the original image available
+    % Read in projections from simind (or wherever) and process them without the original image available
     location = 'C:\Users\svanhoesen\OneDrive - Worcester Polytechnic Institute (wpi.edu)\matlab_testing\projections\';
     left = Read_XCAT(append(location,'lkd128_ppsc.prj'),128);
     right = Read_XCAT(append(location,'rkd128_ppsc.prj'),128);
