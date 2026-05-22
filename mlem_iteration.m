@@ -33,7 +33,7 @@ newImage = direct_backproj;
 for ind = 1:num_iter
     disp('MLEM Iteration '+string(ind))
     proj = projection(newImage,theta,body_size,collimator.resolution);
-
+    
     % compare the oldImage's projection to the known sinogram
     ratio = projections ./ (proj+0.001);
     backproj_ratio = backprojection(ratio,theta,body_size);
@@ -45,7 +45,8 @@ for ind = 1:num_iter
     newImage = newImage .* backproj_ratio;
     newImage = rescale(newImage,0,255);
 
-    % View the current iteration of the estimate image
+
+    % % View the current iteration of the estimate image
     % figure()
     % montage(uint16(newImage),DisplayRange=[])
     % title(append('Iteration ',num2str(ind)))
@@ -56,7 +57,6 @@ end
 figure()
 montage(uint16(newImage),DisplayRange=[])
 title('Recon Image Final')
-% title(['Recon Image Final: ',num2str(length(theta)),' Angles'])
 
 reconstruction = newImage;
 
