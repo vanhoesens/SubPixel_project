@@ -1,4 +1,4 @@
-function proj = projection(image,theta,body_size,collimator_res)
+function proj = projection(image,theta,body_size,pixels,collimator_res)
 
 % General function (3D):
     % Read in the image
@@ -17,7 +17,7 @@ cutoff = 2*half_cutoff;
 rotate_size = [body_size(1)+cutoff body_size(2)+cutoff body_size(3)+cutoff];
 image = padarray(image,[half_cutoff half_cutoff half_cutoff],0,'both');
 
-sinogram = zeros([body_size(1),body_size(2),length(theta)]);
+sinogram = zeros([pixels,pixels,length(theta)]);
 
 for i = 1:length(theta)
     angle = theta(i);
@@ -30,7 +30,11 @@ for i = 1:length(theta)
     end
 
     addedColumns = sum(blurredImage, 2);
-    addedColumns = trimdata(addedColumns,body_size(1),'Side','both','Dimension',1:3);
+    addedColumns = squeeze(trimdata(addedColumns,body_size(1),'Side','both','Dimension',1:3));
+    if body_size(1) ~= pixels
+        div_val = body_size(1)/pixels;
+        addedColumns = div_val*BlockMean(addedColumns,div_val,div_val);
+    end
     sinogram(:,:,i) = addedColumns;
 
 end

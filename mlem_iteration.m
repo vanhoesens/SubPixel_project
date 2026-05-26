@@ -1,4 +1,4 @@
-function reconstruction = mlem_iteration(projections,theta,body_size,collimator,num_iter,varargin)
+function reconstruction = mlem_iteration(projections,theta,body_size,pixels,collimator,num_iter,varargin)
 
 % MLEM Equation:
 % new = old * update factor
@@ -14,13 +14,14 @@ p = inputParser;
 addRequired(p,'projections');
 addRequired(p,'theta');
 addRequired(p,'body_size');
+addRequired(p,'pixels');
 addRequired(p,'collimator');
 addRequired(p,'num_iter');
 addOptional(p,'plot_robust',false);
-parse(p,projections,theta,body_size,collimator,num_iter,varargin{:});
+parse(p,projections,theta,body_size,pixels,collimator,num_iter,varargin{:});
 
 % Perform direct backprojection for comparison to MLEM result
-direct_backproj = backprojection(projections,theta,body_size);
+direct_backproj = backprojection(projections,theta,pixels);
 
 % % Initialize the sinogram of ones to create our sensitivity matrix
 % sino_ones = ones(size(sinogram));
@@ -32,11 +33,11 @@ newImage = direct_backproj;
 
 for ind = 1:num_iter
     disp('MLEM Iteration '+string(ind))
-    proj = projection(newImage,theta,body_size,collimator.resolution);
+    proj = projection(newImage,theta,[pixels pixels pixels],pixels,collimator.resolution);
     
     % compare the oldImage's projection to the known sinogram
     ratio = projections ./ (proj+0.001);
-    backproj_ratio = backprojection(ratio,theta,body_size);
+    backproj_ratio = backprojection(ratio,theta,pixels);
     % correction = backproj_ratio ./ (sens_img+0.001);
 
     % Update the old and new images
@@ -46,10 +47,10 @@ for ind = 1:num_iter
     newImage = rescale(newImage,0,255);
 
 
-    % % View the current iteration of the estimate image
-    % figure()
-    % montage(uint16(newImage),DisplayRange=[])
-    % title(append('Iteration ',num2str(ind)))
+    % View the current iteration of the estimate image
+    figure()
+    montage(uint16(newImage),DisplayRange=[])
+    title(append('Iteration ',num2str(ind)))
 
 end
 

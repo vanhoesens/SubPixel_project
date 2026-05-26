@@ -29,6 +29,7 @@ function collimator = collimator_equations(type,diameter,body_distance,septal_le
 %% Parse the inputs and name them accordingly
 p = inputParser;
 addRequired(p,'type');
+% addRequired(p,'num_pixels');
 addRequired(p,'diameter');
 addRequired(p,'body_distance');
 addRequired(p,'septal_length');
@@ -39,6 +40,7 @@ addOptional(p,'septal_angle',90); % for pinhole
 parse(p,type,diameter,body_distance,septal_length,mu,varargin{:});
 
 type = p.Results.type;
+% pixels = p.Results.num_pixels;
 diameter = p.Results.diameter;
 b_dist = p.Results.body_distance;
 septal_len = p.Results.septal_length;
