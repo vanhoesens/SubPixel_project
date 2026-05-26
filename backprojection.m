@@ -1,10 +1,10 @@
-function image = backprojection(proj,angles,body_size)
+function image = backprojection(proj,angles,image_size)
 
 % Initialize the output image
-max_cutoff = ceil(body_size(1)*0.42); % max number that will be cut off when rotating [diameter = body length, 0.42 = sqrt(2)-1]
+max_cutoff = ceil(image_size*0.42); % max number that will be cut off when rotating [diameter = body length, 0.42 = sqrt(2)-1]
 half_cutoff = round(max_cutoff*0.5);
 cutoff = 2*half_cutoff;
-rotate_size = [body_size(1)+cutoff body_size(1)+cutoff body_size(1)+cutoff];
+rotate_size = [image_size+cutoff image_size+cutoff image_size+cutoff];
 outputImage = zeros(rotate_size);
 diff_angles = angles(1) - angles(2);
 
@@ -20,8 +20,8 @@ diff_angles = angles(1) - angles(2);
 for k = 1:length(angles)
     outputImage = imrotate3(outputImage,diff_angles,[0 0 1],"linear","crop"); 
 
-        angled_projection = zeros(body_size);
-        for ind = 1:body_size(3)
+        angled_projection = zeros([image_size image_size image_size]);
+        for ind = 1:image_size
             angled_projection(ind,:,:) = proj(:,:,k);
 
         end
@@ -46,7 +46,7 @@ outputImage = permute(outputImage,[1 2 3]); % the last value here needs to corre
 outputImage = rescale(outputImage,0,255);
 outputImage = imrotate3(outputImage,90,[0 0 1],"linear","crop");
 outputImage = flip(outputImage,1);
-outputImage = trimdata(outputImage,body_size(1),'Side','both','Dimension',1:3);
+outputImage = trimdata(outputImage,image_size,'Side','both','Dimension',1:3);
 
 image = outputImage; % Assign the output image to backproj for further processing
 
