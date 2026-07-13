@@ -1,8 +1,8 @@
 %% Basic Input Parameters:
-phantom_type = 'shepplogan';
-phantom_size = 256;
-iteration_num = 8; % Number of MLEM iterations to process
-sample_points = 60; % Number of angles to use in (back)projection
+phantom_type = 'simindproj';
+phantom_size = 128;
+iteration_num = 10; % Number of MLEM iterations to process
+sample_points = 120; % Number of angles to use in (back)projection
 collimator_type = 'parallel';
 
 % Initialize collimator parameters
@@ -31,11 +31,11 @@ dist_array = dist_array*pixel_size; % currently assumes there is no space betwee
 
 if strcmp(collimator_type,'pinhole')
     collimator = collimator_equations(collimator_type,hole_diameter,dist_array,septal_length,mu,'septal_angle',septal_angle);
-    clear('septal_thickness','K','collimator_type')
+    % clear('septal_thickness','K','collimator_type')
 
 elseif strcmp(collimator_type,'parallel')
     collimator = collimator_equations(collimator_type,hole_diameter,dist_array,septal_length,mu,'septal_thickness',septal_thickness,'K_value',K);
-    clear('septal_angle','collimator_type')
+    % clear('septal_angle','collimator_type')
 
 end
 
@@ -47,7 +47,7 @@ if strcmp(phantom_type,'shepplogan')
     projections = projection(og_image,theta,body_size,detector_elements,collimator.resolution);
     
 elseif strcmp(phantom_type,'kidneyxcat')
-    location = 'C:\Users\svanhoesen\OneDrive - UMass Chan Medical School\Pt_folders\pt532\prepared_7\';
+    location = 'C:\Users\svanhoesen\OneDrive - UMass Chan Medical School\Pt_folders\pt247\prepared_7\';
     right = Read_XCAT(append(location,'rkid_act_av.bin'),256);
     left = Read_XCAT(append(location,'lkid_act_av.bin'),256);
     lesion = Read_XCAT(append(location,'lesion1_act_av.bin'),256);
@@ -61,13 +61,15 @@ elseif strcmp(phantom_type,'kidneyxcat')
 
 elseif strcmp(phantom_type,'simindproj')
     % Read in projections from simind (or wherever) and process them without the original image available
-    location = 'C:\Users\svanhoesen\OneDrive - Worcester Polytechnic Institute (wpi.edu)\matlab_testing\projections\';
+    location = 'C:\Users\svanhoesen\OneDrive - Worcester Polytechnic Institute (wpi.edu)\matlab_testing\projections\pt247\';
     left = Read_XCAT(append(location,'lkd128_ppsc.prj'),128);
     right = Read_XCAT(append(location,'rkd128_ppsc.prj'),128);
-    lesion = Read_XCAT(append(location,'ls1128_ppsc.prj'),128);
-    projections = right + left - lesion;
-    
-    clear('right','left','lesion')
+    % lesion = Read_XCAT(append(location,'ls1128_ppsc.prj'),128);
+    % projections = right + left - lesion;
+    projections = right + left;
+
+    % clear('right','left','lesion')
+    clear('right','left')
 
 elseif strcmp(phantom_type,'simple')
     image_space = ones(body_size);
@@ -83,9 +85,9 @@ elseif strcmp(phantom_type,'simple')
 
 end
 
-figure()
-montage(uint16(og_image),DisplayRange=[])
-title('OG Image')
+% figure()
+% montage(uint16(og_image),DisplayRange=[])
+% title('OG Image')
 
 % figure()
 % montage(uint16(permute(projections,[1 3 2])),DisplayRange=[])
@@ -98,12 +100,19 @@ title('OG Image')
 %% Call the MLEM_iteration script
 recon_final = mlem_iteration(projections,theta,body_size,detector_elements,collimator,iteration_num,'plot_robust',false);
 
-%% NEXT TASK: 
-% figure out how to do back projection with a smaller projection array than
-% the desired size of the output image without just making the features
-% tiny (as they would if we just pad the array)
 
 
+collimator_pin = collimator_equations('pinhole',hole_diameter,dist_array,septal_length,mu,'septal_angle',septal_angle);
+
+projections = projection(og_image,theta,body_size,detector_elements,collimator_pin.resolution);
+
+recon_pinhole = mlem_iteration(projections,theta,body_size,detector_elements,collimator_pin,iteration_num,'plot_robust',false);
+
+recon_diff = recon_pinhole - recon_final;
+
+figure()
+montage(uint16(recon_diff),DisplayRange=[])
+title('Recon Difference (pinhole - parallel)')
 
 % % Attempt the FFT method mentioned in Sorenson pg 398 - is this basically covered with the distance dependent blurring in the collimator equations?
 % fft3d_recon = fftn(recon_final);
